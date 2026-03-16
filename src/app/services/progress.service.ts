@@ -1,12 +1,33 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { WorkoutProgress, DayProgress, ExerciseProgress } from '../models/plan.model';
+import { WorkoutProgress, DayProgress, ExerciseProgress, WorkoutDay } from '../models/plan.model';
 import { WORKOUT_DAYS } from '../data/plan.data';
 
 const STORAGE_KEY = 'gym-plan-progress';
+const PLAN_KEY = 'gym-plan-custom';
 
 @Injectable({ providedIn: 'root' })
 export class ProgressService {
   private progress = signal<WorkoutProgress>(this.loadProgress());
+
+  loadPlan(): WorkoutDay[] {
+    try {
+      const raw = localStorage.getItem(PLAN_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return WORKOUT_DAYS;
+  }
+
+  savePlan(days: WorkoutDay[]): void {
+    localStorage.setItem(PLAN_KEY, JSON.stringify(days));
+  }
+
+  resetPlan(): void {
+    localStorage.removeItem(PLAN_KEY);
+  }
+
+  private getWorkoutDays(): WorkoutDay[] {
+    return this.loadPlan();
+  }
 
   getExerciseProgress(dayId: string, exerciseId: string): ExerciseProgress {
     const day = this.progress()[dayId];
@@ -31,7 +52,7 @@ export class ProgressService {
   }
 
   getDayCompletionStats(dayId: string): { completed: number; total: number } {
-    const day = WORKOUT_DAYS.find(d => d.id === dayId);
+    const day = this.getWorkoutDays().find(d => d.id === dayId);
     if (!day) return { completed: 0, total: 0 };
     let completed = 0;
     let total = 0;
@@ -61,7 +82,7 @@ export class ProgressService {
   }
 
   private defaultExerciseProgress(dayId: string, exerciseId: string): ExerciseProgress {
-    const day = WORKOUT_DAYS.find(d => d.id === dayId);
+    const day = this.getWorkoutDays().find(d => d.id === dayId);
     const exercise = day?.exercises.find(e => e.id === exerciseId);
     const sets = Array.from({ length: exercise?.sets ?? 0 }, () => ({ completed: false }));
     return { sets };

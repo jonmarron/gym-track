@@ -82,5 +82,34 @@
         </div>
       </div>
     </div>
+
+    <!-- Plan Editor -->
+    <div class="plan-section">
+      <button class="plan-btn" (click)="openPlanEditor()" *ngIf="!showPlanEditor">
+        Edit Plan JSON
+      </button>
+      <div class="plan-editor" *ngIf="showPlanEditor">
+        <div class="plan-editor-header">
+          <span class="plan-editor-title">Plan JSON</span>
+          <button class="copy-btn" [class.copied]="copySuccess" (click)="copyPlanJson()">
+            {{ copySuccess ? 'Copied!' : 'Copy' }}
+          </button>
+        </div>
+        <textarea
+          class="plan-textarea"
+          [(ngModel)]="planEditorJson"
+          rows="14"
+          spellcheck="false"
+          autocomplete="off"
+          autocorrect="off"
+        ></textarea>
+        <div class="plan-error" *ngIf="planImportError">{{ planImportError }}</div>
+        <div class="plan-actions">
+          <button class="btn-primary" (click)="importPlan()">Apply</button>
+          <button class="btn-cancel" (click)="cancelPlanEditor()">Cancel</button>
+          <button class="btn-ghost" (click)="resetToDefaultPlan()">Reset to default</button>
+        </div>
+      </div>
+    </div>
   </main>
 </div>

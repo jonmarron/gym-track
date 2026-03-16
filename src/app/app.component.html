@@ -1,0 +1,86 @@
+<div class="app">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-content">
+      <h1 class="app-title">{{ planName }}</h1>
+      <p class="app-subtitle">Upper body + runner support</p>
+    </div>
+  </header>
+
+  <!-- Day Tabs -->
+  <nav class="day-tabs">
+    <button
+      *ngFor="let day of days"
+      class="day-tab"
+      [class.active]="selectedDay.id === day.id"
+      [class.complete]="isDayComplete(day.id)"
+      [style.--tab-color]="day.color"
+      (click)="selectDay(day)"
+    >
+      <span class="tab-name">{{ day.name }}</span>
+      <span class="tab-label">{{ day.label }}</span>
+      <span class="tab-check" *ngIf="isDayComplete(day.id)">✓</span>
+      <span class="tab-optional" *ngIf="day.isOptional">optional</span>
+    </button>
+  </nav>
+
+  <!-- Day Content -->
+  <main class="day-content">
+    <!-- Day Header -->
+    <div class="day-header" [style.--day-color]="selectedDay.color">
+      <div class="day-title-row">
+        <div>
+          <h2 class="day-title">{{ selectedDay.name }}: {{ selectedDay.label }}</h2>
+          <div class="muscle-tags">
+            <span class="muscle-tag" *ngFor="let m of selectedDay.muscleGroups">
+              {{ m | titlecase }}
+            </span>
+          </div>
+        </div>
+        <div class="day-progress-circle">
+          <svg viewBox="0 0 40 40" class="progress-svg">
+            <circle cx="20" cy="20" r="16" class="circle-bg"/>
+            <circle cx="20" cy="20" r="16" class="circle-fill"
+              [style.stroke-dasharray]="'100 100'"
+              [style.stroke-dashoffset]="100 - selectedDayProgressPercent"
+            />
+          </svg>
+          <span class="progress-pct">{{ selectedDayProgressPercent }}%</span>
+        </div>
+      </div>
+
+      <div class="day-stats">
+        <span>{{ selectedDayStats.completed }} / {{ selectedDayStats.total }} sets done</span>
+      </div>
+
+      <div class="optional-note" *ngIf="selectedDay.schedulingNote">
+        <span class="note-icon">ℹ</span>
+        {{ selectedDay.schedulingNote }}
+      </div>
+    </div>
+
+    <!-- Exercises -->
+    <div class="exercises-list">
+      <app-exercise-card
+        *ngFor="let exercise of selectedDay.exercises"
+        [exercise]="exercise"
+        [dayId]="selectedDay.id"
+        [dayColor]="selectedDay.color"
+      />
+    </div>
+
+    <!-- Reset -->
+    <div class="reset-section">
+      <button class="reset-btn" (click)="confirmReset()" *ngIf="!showResetConfirm">
+        Reset Day
+      </button>
+      <div class="reset-confirm" *ngIf="showResetConfirm">
+        <p>Reset all progress for {{ selectedDay.name }}?</p>
+        <div class="reset-actions">
+          <button class="btn-danger" (click)="resetDay()">Yes, reset</button>
+          <button class="btn-cancel" (click)="cancelReset()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,58 @@
+<div class="exercise-card" [class.done]="isFullyDone" [style.--day-color]="dayColor">
+  <div class="card-header">
+    <div class="exercise-meta">
+      <span class="category-badge" [class.compound]="exercise.category === 'compound'"
+        [class.isolation]="exercise.category === 'isolation'">
+        {{ exercise.category }}
+      </span>
+      <span class="muscle-group">{{ exercise.muscleGroup | titlecase }}</span>
+    </div>
+    <div class="done-badge" *ngIf="isFullyDone">
+      <span class="checkmark">✓</span> Done
+    </div>
+  </div>
+
+  <h3 class="exercise-name">{{ exercise.name }}</h3>
+
+  <div class="exercise-info">
+    <span class="info-pill">{{ exercise.sets }} sets</span>
+    <span class="info-pill">{{ repDisplay }}</span>
+    <span class="info-pill rest">{{ restDisplay }}</span>
+  </div>
+
+  <div class="sets-container">
+    <button
+      *ngFor="let i of sets"
+      class="set-btn"
+      [class.completed]="isSetCompleted(i)"
+      (click)="toggleSet(i)"
+      [attr.aria-label]="'Set ' + (i + 1) + (isSetCompleted(i) ? ' completed' : ' not completed')"
+    >
+      <span class="set-number">{{ i + 1 }}</span>
+      <span class="set-check">✓</span>
+    </button>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" [style.width.%]="(completedSets / exercise.sets) * 100"></div>
+  </div>
+
+  <div class="card-actions">
+    <button class="action-btn" (click)="toggleNotes()" [class.active]="showNotes">
+      Notes
+    </button>
+    <button class="action-btn" (click)="toggleAlternatives()" [class.active]="showAlternatives">
+      Alternatives
+    </button>
+  </div>
+
+  <div class="expandable" *ngIf="showNotes">
+    <p class="notes-text">{{ exercise.notes }}</p>
+  </div>
+
+  <div class="expandable" *ngIf="showAlternatives">
+    <ul class="alternatives-list">
+      <li *ngFor="let alt of exercise.alternatives">{{ alt }}</li>
+    </ul>
+  </div>
+</div>

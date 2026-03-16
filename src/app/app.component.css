@@ -285,13 +285,34 @@
   padding-bottom: 32px;
 }
 
+.plan-tools {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.copy-schema-btn {
+  background: #7F77DD;
+  border: none;
+  color: #fff;
+  padding: 9px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.copy-schema-btn.copied {
+  background: #4caf50;
+}
+
 .plan-btn {
   background: transparent;
   border: 1px solid #3a3a50;
   color: #555;
-  padding: 8px 20px;
+  padding: 9px 18px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 13px;
   transition: all 0.2s;
 }
 
@@ -321,22 +342,6 @@
   color: #aaa;
 }
 
-.copy-btn {
-  background: #2a2a3e;
-  border: 1px solid #3a3a50;
-  color: #aaa;
-  padding: 5px 14px;
-  border-radius: 16px;
-  font-size: 12px;
-  font-weight: 600;
-  transition: all 0.2s;
-  min-width: 64px;
-}
-
-.copy-btn.copied {
-  border-color: #4caf50;
-  color: #4caf50;
-}
 
 .plan-textarea {
   width: 100%;

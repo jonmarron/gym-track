@@ -149,6 +149,7 @@
   width: 56px;
   height: 56px;
   transform: rotate(-90deg);
+  transform-origin: center;
 }
 
 .circle-bg {
@@ -166,8 +167,7 @@
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
   transition: stroke-dashoffset 0.4s ease;
-  /* circumference of r=16 is ~100.5, we use 100 for simplicity */
-  stroke-dasharray: 100 100;
+  stroke-dasharray: 100.53 100.53; /* 2π×16 */
 }
 
 .progress-pct {
@@ -306,6 +306,7 @@
   width: 200px;
   height: 200px;
   transform: rotate(-90deg);
+  transform-origin: center;
 }
 
 .timer-ring-bg {
@@ -321,7 +322,7 @@
   stroke: #7F77DD;
   stroke-width: 6;
   stroke-linecap: round;
-  stroke-dasharray: 327 327;
+  stroke-dasharray: 326.73 326.73; /* 2π×52 */
   vector-effect: non-scaling-stroke;
   transition: stroke-dashoffset 1s linear, stroke 0.4s ease;
 }

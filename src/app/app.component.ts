@@ -46,6 +46,20 @@ export class AppComponent {
     return this.timer.remaining() / total;
   }
 
+  // r=16 → C = 2π×16 ≈ 100.53
+  readonly dayCircleC = 2 * Math.PI * 16;
+
+  get circleDashoffset(): number {
+    return this.dayCircleC * (1 - this.selectedDayProgressPercent / 100);
+  }
+
+  // r=52 → C = 2π×52 ≈ 326.73
+  readonly timerCircleC = 2 * Math.PI * 52;
+
+  get timerDashoffset(): number {
+    return this.timerCircleC * (1 - this.timerArc);
+  }
+
   constructor() {
     this.days = this.progressService.loadPlan();
     this.selectedDay = this.days[0];

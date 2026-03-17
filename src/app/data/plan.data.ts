@@ -1,6 +1,6 @@
 import { WorkoutDay } from '../models/plan.model';
 
-export const PLAN_NAME = 'Upper Body Focus + Runner Support';
+export const PLAN_NAME = 'Gym Tracker';
 export const PLAN_DESCRIPTION = 'A 2–3 day gym plan focused on upper body development with light leg work to complement running.';
 
 export const WORKOUT_DAYS: WorkoutDay[] = [

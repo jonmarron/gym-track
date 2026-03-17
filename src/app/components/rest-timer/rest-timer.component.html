@@ -1,0 +1,23 @@
+<div class="timer-overlay" *ngIf="show" (click)="timer.dismiss()">
+  <div class="timer-modal" (click)="$event.stopPropagation()">
+    <div class="timer-ring-wrap">
+      <svg viewBox="0 0 120 120" class="timer-svg">
+        <g transform="rotate(-90, 60, 60)">
+          <circle cx="60" cy="60" r="52" class="timer-ring-bg"/>
+          <circle cx="60" cy="60" r="52" class="timer-ring-fill"
+            [style.stroke-dashoffset]="dashoffset"
+            [class.done]="timer.done()"
+          />
+        </g>
+      </svg>
+      <div class="timer-center">
+        <span class="timer-go" *ngIf="timer.done()">GO!</span>
+        <span class="timer-countdown" *ngIf="!timer.done()">{{ timerDisplay }}</span>
+        <span class="timer-label" *ngIf="!timer.done()">rest</span>
+      </div>
+    </div>
+    <button class="timer-close-btn" (click)="timer.dismiss()">
+      {{ timer.done() ? 'Let\'s go' : 'Skip' }}
+    </button>
+  </div>
+</div>

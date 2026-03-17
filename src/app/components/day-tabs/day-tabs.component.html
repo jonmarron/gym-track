@@ -1,0 +1,15 @@
+<nav class="day-tabs">
+  <button
+    *ngFor="let day of days"
+    class="day-tab"
+    [class.active]="selectedDay.id === day.id"
+    [class.complete]="isDayComplete(day.id)"
+    [style.--tab-color]="day.color"
+    (click)="daySelect.emit(day)"
+  >
+    <span class="tab-name">{{ day.name }}</span>
+    <span class="tab-label">{{ day.label }}</span>
+    <span class="tab-check" *ngIf="isDayComplete(day.id)">✓</span>
+    <span class="tab-optional" *ngIf="day.isOptional">optional</span>
+  </button>
+</nav>

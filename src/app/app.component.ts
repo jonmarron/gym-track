@@ -1,93 +1,50 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ExerciseCardComponent } from './components/exercise-card/exercise-card.component';
+import { RestTimerComponent } from './components/rest-timer/rest-timer.component';
+import { DayTabsComponent } from './components/day-tabs/day-tabs.component';
+import { DayHeaderComponent } from './components/day-header/day-header.component';
+import { PlanEditorComponent } from './components/plan-editor/plan-editor.component';
 import { WORKOUT_DAYS, PLAN_NAME } from './data/plan.data';
 import { WorkoutDay } from './models/plan.model';
 import { ProgressService } from './services/progress.service';
-import { TimerService } from './services/timer.service';
+import { WakeLockService } from './services/wake-lock.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, ExerciseCardComponent],
+  imports: [
+    CommonModule,
+    ExerciseCardComponent,
+    RestTimerComponent,
+    DayTabsComponent,
+    DayHeaderComponent,
+    PlanEditorComponent,
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   planName = PLAN_NAME;
   days: WorkoutDay[];
   selectedDay: WorkoutDay;
   showResetConfirm = false;
 
-  showPlanEditor = false;
-  planEditorJson = '';
-  planImportError = '';
-  copySuccess = false;
-
   private progressService = inject(ProgressService);
-  private _progress = this.progressService.getProgress();
-  timer = inject(TimerService);
-
-  get showTimerModal(): boolean {
-    return this.timer.active() || this.timer.done();
-  }
-
-  get timerDisplay(): string {
-    const s = this.timer.remaining();
-    const m = Math.floor(s / 60);
-    const sec = s % 60;
-    return `${m}:${sec.toString().padStart(2, '0')}`;
-  }
-
-  get timerArc(): number {
-    const total = this.timer.total();
-    if (total === 0) return 0;
-    return this.timer.remaining() / total;
-  }
-
-  // r=16 → C = 2π×16 ≈ 100.53
-  readonly dayCircleC = 2 * Math.PI * 16;
-
-  get circleDashoffset(): number {
-    return this.dayCircleC * (1 - this.selectedDayProgressPercent / 100);
-  }
-
-  // r=52 → C = 2π×52 ≈ 326.73
-  readonly timerCircleC = 2 * Math.PI * 52;
-
-  get timerDashoffset(): number {
-    return this.timerCircleC * (1 - this.timerArc);
-  }
+  wakeLock = inject(WakeLockService);
 
   constructor() {
     this.days = this.progressService.loadPlan();
     this.selectedDay = this.days[0];
   }
 
-  selectDay(day: WorkoutDay): void {
+  ngOnInit(): void {
+    this.wakeLock.acquire();
+  }
+
+  onDaySelect(day: WorkoutDay): void {
     this.selectedDay = day;
     this.showResetConfirm = false;
-  }
-
-  getDayStats(dayId: string): { completed: number; total: number } {
-    this._progress();
-    return this.progressService.getDayCompletionStats(dayId);
-  }
-
-  isDayComplete(dayId: string): boolean {
-    this._progress();
-    return this.progressService.isDayComplete(dayId);
-  }
-
-  get selectedDayStats() {
-    return this.getDayStats(this.selectedDay.id);
-  }
-
-  get selectedDayProgressPercent(): number {
-    const stats = this.selectedDayStats;
-    if (stats.total === 0) return 0;
-    return Math.round((stats.completed / stats.total) * 100);
   }
 
   confirmReset(): void {
@@ -103,90 +60,13 @@ export class AppComponent {
     this.showResetConfirm = false;
   }
 
-  copySchemaPrompt(): void {
-    const prompt = `You are a workout plan generator. Return ONLY a valid JSON array — no markdown, no explanation, no code fences.
-
-Follow this exact schema:
-
-[
-  {
-    "id": "day-a",
-    "name": "Day A",
-    "label": "Push + Core",
-    "muscleGroups": ["chest", "shoulders", "triceps", "core"],
-    "color": "#7F77DD",
-    "isOptional": false,
-    "schedulingNote": "Optional scheduling tip, or omit this field",
-    "exercises": [
-      {
-        "id": "a1",
-        "name": "Exercise Name",
-        "muscleGroup": "chest",
-        "category": "compound",
-        "sets": 4,
-        "reps": { "min": 6, "max": 8 },
-        "restSeconds": 150,
-        "notes": "Form cue or tip.",
-        "alternatives": ["Alternative 1", "Alternative 2"]
-      },
-      {
-        "id": "a2",
-        "name": "Timed Exercise Example",
-        "muscleGroup": "core",
-        "category": "isolation",
-        "sets": 3,
-        "durationSeconds": { "min": 30, "max": 45 },
-        "restSeconds": 60,
-        "notes": "Use durationSeconds instead of reps for timed exercises.",
-        "alternatives": []
-      }
-    ]
-  }
-]
-
-Field rules:
-- id: unique string across all exercises (e.g. "a1", "b2")
-- category: must be exactly "compound" or "isolation"
-- use "reps" OR "durationSeconds", not both
-- color: a hex color string
-- isOptional / schedulingNote: omit if not needed
-
-My workout requirements:
-`;
-    navigator.clipboard.writeText(prompt);
-    this.copySuccess = true;
-    setTimeout(() => (this.copySuccess = false), 2000);
+  onPlanImported(days: WorkoutDay[]): void {
+    this.days = days;
+    this.selectedDay = days[0];
   }
 
-  openPlanEditor(): void {
-    this.planEditorJson = '';
-    this.planImportError = '';
-    this.showPlanEditor = true;
-  }
-
-  importPlan(): void {
-    try {
-      const parsed = JSON.parse(this.planEditorJson);
-      if (!Array.isArray(parsed) || parsed.length === 0) {
-        throw new Error('Must be a non-empty array of workout days');
-      }
-      this.progressService.savePlan(parsed);
-      this.days = parsed;
-      this.selectedDay = parsed[0];
-      this.showPlanEditor = false;
-    } catch (e: any) {
-      this.planImportError = e.message;
-    }
-  }
-
-  resetToDefaultPlan(): void {
-    this.progressService.resetPlan();
+  onPlanReset(): void {
     this.days = WORKOUT_DAYS;
     this.selectedDay = WORKOUT_DAYS[0];
-    this.showPlanEditor = false;
-  }
-
-  cancelPlanEditor(): void {
-    this.showPlanEditor = false;
   }
 }

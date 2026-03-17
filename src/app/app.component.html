@@ -1,87 +1,30 @@
-<!-- Rest Timer Modal -->
-<div class="timer-overlay" *ngIf="showTimerModal" (click)="timer.dismiss()">
-  <div class="timer-modal" (click)="$event.stopPropagation()">
-    <div class="timer-ring-wrap">
-      <svg viewBox="0 0 120 120" class="timer-svg">
-        <circle cx="60" cy="60" r="52" class="timer-ring-bg"/>
-        <circle cx="60" cy="60" r="52" class="timer-ring-fill"
-          [style.stroke-dashoffset]="timerDashoffset"
-          [class.done]="timer.done()"
-        />
-      </svg>
-      <div class="timer-center">
-        <span class="timer-go" *ngIf="timer.done()">GO!</span>
-        <span class="timer-countdown" *ngIf="!timer.done()">{{ timerDisplay }}</span>
-        <span class="timer-label" *ngIf="!timer.done()">rest</span>
-      </div>
-    </div>
-    <button class="timer-close-btn" (click)="timer.dismiss()">
-      {{ timer.done() ? 'Let\'s go' : 'Skip' }}
-    </button>
-  </div>
-</div>
+<app-rest-timer />
 
 <div class="app">
-  <!-- Header -->
   <header class="app-header">
     <div class="header-content">
       <h1 class="app-title">{{ planName }}</h1>
-      <p class="app-subtitle">Upper body + runner support</p>
+      <p class="app-subtitle">Track your sets, rest, and progress</p>
     </div>
+    <button
+      class="wake-lock-btn"
+      [class.active]="wakeLock.enabled()"
+      (click)="wakeLock.toggle()"
+    >
+      <span class="wake-lock-dot"></span>
+      Keep Awake
+    </button>
   </header>
 
-  <!-- Day Tabs -->
-  <nav class="day-tabs">
-    <button
-      *ngFor="let day of days"
-      class="day-tab"
-      [class.active]="selectedDay.id === day.id"
-      [class.complete]="isDayComplete(day.id)"
-      [style.--tab-color]="day.color"
-      (click)="selectDay(day)"
-    >
-      <span class="tab-name">{{ day.name }}</span>
-      <span class="tab-label">{{ day.label }}</span>
-      <span class="tab-check" *ngIf="isDayComplete(day.id)">✓</span>
-      <span class="tab-optional" *ngIf="day.isOptional">optional</span>
-    </button>
-  </nav>
+  <app-day-tabs
+    [days]="days"
+    [selectedDay]="selectedDay"
+    (daySelect)="onDaySelect($event)"
+  />
 
-  <!-- Day Content -->
   <main class="day-content">
-    <!-- Day Header -->
-    <div class="day-header" [style.--day-color]="selectedDay.color">
-      <div class="day-title-row">
-        <div>
-          <h2 class="day-title">{{ selectedDay.name }}: {{ selectedDay.label }}</h2>
-          <div class="muscle-tags">
-            <span class="muscle-tag" *ngFor="let m of selectedDay.muscleGroups">
-              {{ m | titlecase }}
-            </span>
-          </div>
-        </div>
-        <div class="day-progress-circle">
-          <svg viewBox="0 0 40 40" class="progress-svg">
-            <circle cx="20" cy="20" r="16" class="circle-bg"/>
-            <circle cx="20" cy="20" r="16" class="circle-fill"
-              [style.stroke-dashoffset]="circleDashoffset"
-            />
-          </svg>
-          <span class="progress-pct">{{ selectedDayProgressPercent }}%</span>
-        </div>
-      </div>
+    <app-day-header [day]="selectedDay" />
 
-      <div class="day-stats">
-        <span>{{ selectedDayStats.completed }} / {{ selectedDayStats.total }} sets done</span>
-      </div>
-
-      <div class="optional-note" *ngIf="selectedDay.schedulingNote">
-        <span class="note-icon">ℹ</span>
-        {{ selectedDay.schedulingNote }}
-      </div>
-    </div>
-
-    <!-- Exercises -->
     <div class="exercises-list">
       <app-exercise-card
         *ngFor="let exercise of selectedDay.exercises"
@@ -91,7 +34,6 @@
       />
     </div>
 
-    <!-- Reset -->
     <div class="reset-section">
       <button class="reset-btn" (click)="confirmReset()" *ngIf="!showResetConfirm">
         Reset Day
@@ -105,35 +47,9 @@
       </div>
     </div>
 
-    <!-- Plan Editor -->
-    <div class="plan-section">
-      <div class="plan-tools" *ngIf="!showPlanEditor">
-        <button class="copy-schema-btn" [class.copied]="copySuccess" (click)="copySchemaPrompt()">
-          {{ copySuccess ? 'Prompt copied!' : 'Copy AI prompt' }}
-        </button>
-        <button class="plan-btn" (click)="openPlanEditor()">Paste plan JSON</button>
-      </div>
-
-      <div class="plan-editor" *ngIf="showPlanEditor">
-        <div class="plan-editor-header">
-          <span class="plan-editor-title">Paste the JSON returned by the AI</span>
-        </div>
-        <textarea
-          class="plan-textarea"
-          [(ngModel)]="planEditorJson"
-          rows="14"
-          placeholder='[&#10;  {&#10;    "id": "day-a",&#10;    ...&#10;  }&#10;]'
-          spellcheck="false"
-          autocomplete="off"
-          autocorrect="off"
-        ></textarea>
-        <div class="plan-error" *ngIf="planImportError">{{ planImportError }}</div>
-        <div class="plan-actions">
-          <button class="btn-primary" (click)="importPlan()">Apply</button>
-          <button class="btn-cancel" (click)="cancelPlanEditor()">Cancel</button>
-          <button class="btn-ghost" (click)="resetToDefaultPlan()">Reset to default</button>
-        </div>
-      </div>
-    </div>
+    <app-plan-editor
+      (planImported)="onPlanImported($event)"
+      (planReset)="onPlanReset()"
+    />
   </main>
 </div>

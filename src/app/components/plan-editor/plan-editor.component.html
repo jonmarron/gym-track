@@ -1,0 +1,29 @@
+<div class="plan-section">
+  <div class="plan-tools" *ngIf="!showEditor">
+    <button class="copy-schema-btn" [class.copied]="copySuccess" (click)="copySchemaPrompt()">
+      {{ copySuccess ? 'Prompt copied!' : 'Copy AI prompt' }}
+    </button>
+    <button class="plan-btn" (click)="openEditor()">Paste plan JSON</button>
+  </div>
+
+  <div class="plan-editor" *ngIf="showEditor">
+    <div class="plan-editor-header">
+      <span class="plan-editor-title">Paste the JSON returned by the AI</span>
+    </div>
+    <textarea
+      class="plan-textarea"
+      [(ngModel)]="editorJson"
+      rows="14"
+      placeholder='[&#10;  {&#10;    "id": "day-a",&#10;    ...&#10;  }&#10;]'
+      spellcheck="false"
+      autocomplete="off"
+      autocorrect="off"
+    ></textarea>
+    <div class="plan-error" *ngIf="importError">{{ importError }}</div>
+    <div class="plan-actions">
+      <button class="btn-primary" (click)="importPlan()">Apply</button>
+      <button class="btn-cancel" (click)="cancelEditor()">Cancel</button>
+      <button class="btn-ghost" (click)="resetToDefault()">Reset to default</button>
+    </div>
+  </div>
+</div>

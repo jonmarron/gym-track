@@ -1,3 +1,26 @@
+<!-- Rest Timer Modal -->
+<div class="timer-overlay" *ngIf="showTimerModal" (click)="timer.dismiss()">
+  <div class="timer-modal" (click)="$event.stopPropagation()">
+    <div class="timer-ring-wrap">
+      <svg viewBox="0 0 120 120" class="timer-svg">
+        <circle cx="60" cy="60" r="52" class="timer-ring-bg"/>
+        <circle cx="60" cy="60" r="52" class="timer-ring-fill"
+          [style.stroke-dashoffset]="327 * (1 - timerArc)"
+          [class.done]="timer.done()"
+        />
+      </svg>
+      <div class="timer-center">
+        <span class="timer-go" *ngIf="timer.done()">GO!</span>
+        <span class="timer-countdown" *ngIf="!timer.done()">{{ timerDisplay }}</span>
+        <span class="timer-label" *ngIf="!timer.done()">rest</span>
+      </div>
+    </div>
+    <button class="timer-close-btn" (click)="timer.dismiss()">
+      {{ timer.done() ? 'Let\'s go' : 'Skip' }}
+    </button>
+  </div>
+</div>
+
 <div class="app">
   <!-- Header -->
   <header class="app-header">

@@ -2,6 +2,7 @@ import { Component, Input, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Exercise } from '../../models/plan.model';
 import { ProgressService } from '../../services/progress.service';
+import { TimerService } from '../../services/timer.service';
 
 @Component({
   selector: 'app-exercise-card',
@@ -19,6 +20,7 @@ export class ExerciseCardComponent {
   showAlternatives = false;
 
   private progressService = inject(ProgressService);
+  private timerService = inject(TimerService);
 
   // Force re-evaluation when progress changes
   private _progress = this.progressService.getProgress();
@@ -63,7 +65,11 @@ export class ExerciseCardComponent {
   }
 
   toggleSet(setIndex: number): void {
+    const wasCompleted = this.progressService.isSetCompleted(this.dayId, this.exercise.id, setIndex);
     this.progressService.toggleSet(this.dayId, this.exercise.id, setIndex);
+    if (!wasCompleted) {
+      this.timerService.start(this.exercise.restSeconds);
+    }
   }
 
   toggleNotes(): void {

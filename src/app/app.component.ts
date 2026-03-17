@@ -5,6 +5,7 @@ import { ExerciseCardComponent } from './components/exercise-card/exercise-card.
 import { WORKOUT_DAYS, PLAN_NAME } from './data/plan.data';
 import { WorkoutDay } from './models/plan.model';
 import { ProgressService } from './services/progress.service';
+import { TimerService } from './services/timer.service';
 
 @Component({
   selector: 'app-root',
@@ -26,6 +27,24 @@ export class AppComponent {
 
   private progressService = inject(ProgressService);
   private _progress = this.progressService.getProgress();
+  timer = inject(TimerService);
+
+  get showTimerModal(): boolean {
+    return this.timer.active() || this.timer.done();
+  }
+
+  get timerDisplay(): string {
+    const s = this.timer.remaining();
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec.toString().padStart(2, '0')}`;
+  }
+
+  get timerArc(): number {
+    const total = this.timer.total();
+    if (total === 0) return 0;
+    return this.timer.remaining() / total;
+  }
 
   constructor() {
     this.days = this.progressService.loadPlan();
